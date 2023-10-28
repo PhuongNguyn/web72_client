@@ -1,14 +1,20 @@
 import { Form, Button, Checkbox, Input, Upload } from "antd"
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { useState } from "react";
-import { createProduct } from "../services";
+import { useEffect, useState } from "react";
+import { createProduct, getProductById, updateProduct } from "../services";
 import { useToast } from "@chakra-ui/react";
+import { useNavigate, useParams } from "react-router";
+import { CLOUDINARY_URL } from "../config";
 
 const CreateProduct = () => {
+    const navigate = useNavigate()
+    const params = useParams()
     const toast = useToast()
     const [loading, setLoading] = useState(false);
     const [imageUrl, setImageUrl] = useState();
     const [file, setFile] = useState()
+
+    const [form] = Form.useForm()
 
     const getBase64 = (img, callback) => {
         const reader = new FileReader();
@@ -16,43 +22,72 @@ const CreateProduct = () => {
         reader.readAsDataURL(img);
     };
 
+    const getProduct = async () => {
+        try {
+            const product = await getProductById(params.id)
+            form.setFieldValue("name", product.data.product.name)
+            form.setFieldValue("price", product.data.product.price)
+            form.setFieldValue("quantity", product.data.product.quantity)
+            setImageUrl(`${CLOUDINARY_URL}/${product.data.product?.image}`)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const handleChange = (info) => {
         setFile(info.file.originFileObj)
-        if (info.file.status === 'uploading') {
-            setLoading(true);
-            return;
-        }
-        if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            getBase64(info.file.originFileObj, (url) => {
-                setLoading(false);
-                setImageUrl(url);
-            });
-        }
+        getBase64(info.file.originFileObj, (url) => {
+            setLoading(false);
+            setImageUrl(url);
+        });
+
     };
 
     const onFinish = async (values) => {
-        try {
-            const formdata = new FormData()
-            formdata.append("name", values.name)
-            formdata.append("price", values.price)
-            formdata.append("quantity", values.quantity)
-            formdata.append("image", file)
-            const result = await createProduct(formdata)
+        const formdata = new FormData()
+        formdata.append("name", values.name)
+        formdata.append("price", values.price)
+        formdata.append("quantity", values.quantity)
+        formdata.append("image", file)
+        if (!params.id) {
+            try {
+                const result = await createProduct(formdata)
 
-            toast({
-                status: "success",
-                title: "Tạo sản phẩm thành công",
-                position: 'top'
-            })
-        } catch (error) {
-            console.log(error)
-            toast({
-                status: "error",
-                title: "Tạo sản phẩm thất bại",
-                position: 'top'
-            })
+                toast({
+                    status: "success",
+                    title: "Tạo sản phẩm thành công",
+                    position: 'top'
+                })
+                navigate("/manage-product")
+            } catch (error) {
+                console.log(error)
+                toast({
+                    status: "error",
+                    title: "Tạo sản phẩm thất bại",
+                    position: 'top'
+                })
+            }
+        } else {
+            try {
+                const result = await updateProduct(params.id, formdata)
+
+                toast({
+                    status: "success",
+                    title: "Update sản phẩm thành công",
+                    position: 'top'
+                })
+                navigate("/manage-product")
+
+            } catch (error) {
+                console.log(error)
+                toast({
+                    status: "error",
+                    title: "Update sản phẩm thất bại",
+                    position: 'top'
+                })
+            }
         }
+
     };
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -64,11 +99,18 @@ const CreateProduct = () => {
             <div style={{ marginTop: 8 }}>Upload</div>
         </div>
     );
+
+    useEffect(() => {
+        if (params.id) {
+            getProduct()
+        }
+    }, [])
+
     return (
         <div>
             <Form
                 name="basic"
-
+                form={form}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
                 autoComplete="off"
@@ -107,11 +149,12 @@ const CreateProduct = () => {
                     <Input />
                 </Form.Item>
                 <Upload
-                    multiple={false}
                     name="avatar"
                     listType="picture-card"
                     className="avatar-uploader"
                     onChange={handleChange}
+                    showUploadList={false}
+                    action={() => false}
                 >
                     {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
                 </Upload>

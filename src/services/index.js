@@ -22,7 +22,22 @@ const createProduct = (data) => {
     return axiosInstance.post('/product', data)
 }
 
+const getProduct = (pageSize = 3, pageIndex = 1) => {
+    return axiosInstance.get(`/product/get-paging?pageSize=${pageSize}&pageIndex=${pageIndex}`)
+}
+
+const getProductById = (productId) => {
+    return axiosInstance.get(`/product/${productId}`)
+}
+
+const updateProduct = (id, data) => {
+    return axiosInstance.put(`/product/${id}`, data)
+}
+
 export {
     login,
-    createProduct
+    createProduct,
+    getProduct,
+    getProductById,
+    updateProduct
 }

@@ -29,6 +29,7 @@ const Router = () => {
             {user && <Route path="/" element={<MainLayout />}>
                 <Route path="/manage-product" element={<ManageProduct />} />
                 <Route path="/create-product" element={<CreateProduct />} />
+                <Route path="/edit-product/:id" element={<CreateProduct />} />
             </Route>}
             <Route path="/*" element={<NotFoundPage />} />
         </Routes>

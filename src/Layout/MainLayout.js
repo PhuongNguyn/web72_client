@@ -25,7 +25,7 @@ const MainLayout = () => {
                     mode="inline"
                     defaultSelectedKeys={['1']}
                 >
-                    <Menu.Item><Link to={'/dashboard'}>Dashboard</Link></Menu.Item>
+                    <Menu.Item><Link to={'/manage-product'}>Manage Product</Link></Menu.Item>
                 </Menu>
             </Sider>
             <Layout>
