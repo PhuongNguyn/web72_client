@@ -34,10 +34,15 @@ const updateProduct = (id, data) => {
     return axiosInstance.put(`/product/${id}`, data)
 }
 
+const deleteProduct = (id) => {
+    return axiosInstance.delete(`/product/${id}`)
+}
+
 export {
     login,
     createProduct,
     getProduct,
     getProductById,
-    updateProduct
+    updateProduct,
+    deleteProduct
 }

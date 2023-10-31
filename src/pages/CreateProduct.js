@@ -5,6 +5,7 @@ import { createProduct, getProductById, updateProduct } from "../services";
 import { useToast } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router";
 import { CLOUDINARY_URL } from "../config";
+import toSlug from "../utils/toSlug";
 
 const CreateProduct = () => {
     const navigate = useNavigate()
@@ -28,6 +29,7 @@ const CreateProduct = () => {
             form.setFieldValue("name", product.data.product.name)
             form.setFieldValue("price", product.data.product.price)
             form.setFieldValue("quantity", product.data.product.quantity)
+            form.setFieldValue("slug", product.data.product?.slug)
             setImageUrl(`${CLOUDINARY_URL}/${product.data.product?.image}`)
         } catch (error) {
             console.log(error)
@@ -49,6 +51,7 @@ const CreateProduct = () => {
         formdata.append("price", values.price)
         formdata.append("quantity", values.quantity)
         formdata.append("image", file)
+        formdata.append("slug", values.slug)
         if (!params.id) {
             try {
                 const result = await createProduct(formdata)
@@ -120,9 +123,15 @@ const CreateProduct = () => {
                     name="name"
 
                 >
+                    <Input onChange={(e) => { form.setFieldValue("name", e.target.value); form.setFieldValue("slug", toSlug(e.target.value)) }} />
+                </Form.Item>
+                <Form.Item
+                    label="Đường dẫn tĩnh"
+                    name="slug"
+
+                >
                     <Input />
                 </Form.Item>
-
                 <Form.Item
                     label="Giá sản phẩm"
                     name="price"

@@ -1,15 +1,17 @@
 import { Button, Pagination } from "antd"
 import { Link } from "react-router-dom"
-import { Space, Table, Tag } from 'antd';
+import { Space, Table, Tag, Popconfirm } from 'antd';
 import { useEffect, useState } from "react";
-import { getProduct } from "../services";
+import { deleteProduct, getProduct } from "../services";
 import { CLOUDINARY_URL } from "../config";
+import { useToast } from "@chakra-ui/react";
 
 const ManageProduct = () => {
     const [pageSize, setPageSize] = useState(3)
     const [pageIndex, setPageIndex] = useState(1)
     const [products, setProducts] = useState([])
     const [count, setCount] = useState(0)
+    const toast = useToast()
     const getPagingProduct = async () => {
         try {
             const result = await getProduct(pageSize, pageIndex)
@@ -17,6 +19,24 @@ const ManageProduct = () => {
             setCount(result.data.count)
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    const deleteProducts = async (id) => {
+        try {
+            const result = await deleteProduct(id)
+            toast({
+                status: "success",
+                title: "Xoá sản phẩm thành công",
+                position: 'top'
+            })
+            setProducts(products.filter(item => item._id != id))
+        } catch (error) {
+            toast({
+                status: "error",
+                title: "Delete product failed",
+                position: 'top'
+            })
         }
     }
 
@@ -66,8 +86,9 @@ const ManageProduct = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
+                    {console.log(record)}
                     <Link to={`/edit-product/${record._id}`}>Edit</Link>
-                    <a>Delete</a>
+                    <Popconfirm title="Delete product" description="Are you sure to delete this product?" onConfirm={() => { deleteProducts(record._id) }}>Delete</Popconfirm>
                 </Space>
             ),
         },
