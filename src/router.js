@@ -3,10 +3,12 @@ import Login from "./pages/Login"
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { loginSuccess } from "./redux/slice/user.slice"
-import MainLayout from "./Layout/MainLayout"
-import ManageProduct from "./pages/ManageProduct"
-import NotFoundPage from "./pages/404Page"
-import CreateProduct from "./pages/CreateProduct"
+import React from 'react'
+
+const MainLayout = React.lazy(() => import("./Layout/MainLayout"))
+const ManageProduct = React.lazy(() => import("./pages/ManageProduct"))
+const NotFoundPage = React.lazy(() => import("./pages/404Page"))
+const CreateProduct = React.lazy(() => import("./pages/CreateProduct"))
 
 
 const Router = () => {
